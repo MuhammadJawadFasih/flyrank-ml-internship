@@ -41,6 +41,7 @@ Target: `is_declining_label = 1` when `trend_direction == "down"` (an observed 3
 Split: grouped by `client_id` (`GroupShuffleSplit`, 80/20, `random_state=42`) — no client's pages appear in both train and test. This is more honest than a random row split because pages from the same client can share characteristics that would let a model learn client identity rather than a generalizable signal.
 
 Metrics (same split, same test set):
+
 | Method | Precision@50 |
 |---|---|
 | Base rate (always guess majority) | 0.511 |
@@ -56,6 +57,14 @@ Surprise / negative result: my own signal audit (`w04_signal_audit`) tested whet
 
 ## 7. Recommendation
 The ranked action queue (`work/outputs/action_playbook_queue.csv`) flags 17,736 of 30,000 pages for review, split into three reason codes: `VISIBLE_BUT_DECLINING` (17,644 — the dominant category), `STALE_AND_FADING` (92 — rare here, consistent with the staleness finding above), and the remainder `LOW_SIGNAL` (no action). A FlyRank editor would start at the top of the queue (highest predicted probability), check each flagged page's real-world relevance and business priority before acting, and never auto-publish changes based on the score alone. Confidence: this is decision-support only, evaluated on a small (7-client) holdout — treat it as a prioritized starting point, not a verdict. Limits: it does not claim any refresh will fix a page, and it should be re-validated before use on a materially different portfolio or time period.
+
+## 8. Reproducibility
+To re-run from a fresh clone:
+
+    git clone https://github.com/MuhammadJawadFasih/flyrank-ml-internship.git
+    cd flyrank-ml-internship
+    pip install -r requirements.txt
+
 Then open and run, in order: `work/notebooks/w03_feature_leakage_check.ipynb` → `w04_signal_audit.ipynb` → `w04_baseline_score.ipynb` → `w05_model.ipynb` → `w06_validation_audit.ipynb` → `w07_action_playbook.ipynb` → `capstone.ipynb`. All random splits use `random_state=42` for reproducibility. Outputs (ranked queue, results table, chart) are committed at `work/outputs/`, generated directly from the capstone notebook — no sealed/blind holdout evaluation is claimed in this project (all evaluation numbers come from the single client-holdout split described in Section 5, openly re-run in the capstone notebook itself).
 
 ## 9. Acknowledgments & data credit
@@ -63,6 +72,3 @@ Built on the FlyRank ML Internship dataset — [flyrank.ai](https://flyrank.ai).
 
 ---
 **Claims checklist:** observed / measured / directional / decision-support language used throughout; no causal claims; no claims about Google's algorithm; no client-identifying details; base rate (0.511–0.542 depending on split) reported alongside every Precision@50 figure so scores aren't mistaken for skill over a high floor.
-
-## 8. Reproducibility
-To re-run from a fresh clone:
